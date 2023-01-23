@@ -22,6 +22,14 @@
         width: 100%;
         height: 100vh;
       }
+      .text-labels {
+        font-size: 0.5rem;
+        font-weight: 700;
+        color: red;
+        display: none;
+        /* Use color, background, set margins for offset, etc */
+	  }
+
     </style>
   </head>
   <body>
@@ -42,19 +50,34 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="lib/L.Geoserver.js"></script>
 <script src="lib/leaflet-hash.js"></script>
+
+<!-- <script src="lib/leaflet/plugins/leaflet.ajax.min.js"></script> -->
+
+<!--geojson-vt-->
 <script src="https://unpkg.com/geojson-vt@3.2.0/geojson-vt.js"></script>
 <script src="lib/leaflet-geojson-vt.js"></script>
 
 <script>
-  var map = L.map("map").setView([15.6261, -61.44361], 13);
- var hash = new L.Hash(map);
+  var map = L.map("map").setView([22.36373590576673, 90.28132546231535], 13);
+  // var hash = new L.Hash(map);
   var osm = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    maxZoom: 19,
+      maxZoom: 20,
+			zoomSnap:1,
+			trackResize:true,
+			boxZoom:true,
     attribution:
       '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
   });
 
   osm.addTo(map);
+
+      var startZoom = map.getZoom();
+    
+      if(startZoom<18){
+        $('.text-labels').css('display', 'none');
+      }else{
+        $('.text-labels').css('display', 'block');
+      }
 
   var geojsonStyle = {
     fillColor: "#ff7800",
@@ -75,41 +98,52 @@
 }).addTo(map); */
 
   $.getJSON(wfs_url).then((res) => {
-   
-    /* var layer = L.geoJson(res, {
+    var layer = L.geoJson(res, {
       style: function () {
 				return {
 					color: 'yellow',
-                    fillOpacity: .5,
+          fillOpacity: .5,
 					fillColor: '#FED976'
 				}
 			},
       onEachFeature: function (f, l) {
-        console.log('l  ',l,' f ',f);
+      
         var center = l.getBounds().getCenter();
         setCustomMarker(center['lng'], center['lat'], f.properties.Mouza_Dag);
-        l.bindPopup("Mouza_Dag: " + f.properties.Mouza_Dag + " Area_Acres:" + f.properties.Area_Acres);
+        // l.bindPopup("Mouza_Dag: " + f.properties.Mouza_Dag + " Area_Acres:" + f.properties.Area_Acres);
       },
 
       // style: geojsonStyle,
-    }).addTo(map);
+    });
 
-    map.fitBounds(layer.getBounds()); */
+    map.fitBounds(layer.getBounds());
+ 
     var options = {
         maxZoom: 20,
-        tolerance: 3,
+        tolerance: 80,
         debug: 0,
+        buffer: 70,
         style: {
           color: 'yellow',
           fillOpacity: .5,
 					fillColor: '#FED976'
-        },
-        
-       
+        }
     };
 
+    map.on('zoomend', function (e) {
+      var currZoom = map.getZoom();
+      console.log('currZoom ',currZoom);
+      if(currZoom<18){
+        $('.text-labels').css('display', 'none');
+      }else{
+        $('.text-labels').css('display', 'block');
+      }
+    });
+
     var tileIndex = L.geoJson.vt(res, options).addTo(map);
- 
+
+   
+    // console.log('tileIndex ',tileIndex);
    
   });
 
