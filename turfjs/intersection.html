@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,15 +11,18 @@
             margin: 0;
             padding: 0;
         }
+
         #map {
             width: 100%;
             height: 100vh;
         }
     </style>
 </head>
+
 <body>
     <div id="map"></div>
 </body>
+
 </html>
 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@turf/turf@5/turf.min.js"></script>
@@ -41,22 +45,57 @@
     // L.geoJson(nepalGeoJsonData).addTo(map)
     // L.geoJson(polygon3).addTo(map);
 
-    L.geoJson(nepalGeoJsonData, {
-        onEachFeature: function(feature, layer){
-            var poly1 = feature.geometry
+    // L.geoJson(nepalGeoJsonData, {
+       
+    //     onEachFeature: function (feature, layer) {
+    //         var poly1 = feature.geometry
 
-            L.geoJson(polygon2, {
-                onEachFeature: function(feature, layer){
-                    var poly2 = feature.geometry
-                    
-                    var intersection = turf.intersect(poly1, poly2)
+    //         L.geoJson(polygon2, {
+    //             onEachFeature: function (feature, layer) {
+    //                 var poly2 = feature.geometry
 
-                    L.geoJson(intersection).addTo(map)
-                    console.log({poly1, poly2, intersection})
-                }
-            })
-        }
-    })
+    //                 var intersection = turf.intersect(poly1, poly2)
 
-    
+    //                 layer.setStyle({
+    //                     "fill": "#00F",
+    //                     "fill-opacity": 4
+    //                 })
+
+    //                 L.geoJson(intersection).addTo(map)
+    //                 console.log({ poly1, poly2, intersection })
+    //             }
+    //         })
+    //     },
+        
+    // })
+
+    var poly1 = turf.polygon([[
+  [-122.801742, 45.48565],
+  [-122.801742, 45.60491],
+  [-122.584762, 45.60491],
+  [-122.584762, 45.48565],
+  [-122.801742, 45.48565]
+]],{
+  "fill": "#F00",
+  "fill-opacity": 4
+});
+
+var poly2 = turf.polygon([[
+  [-122.520217, 45.535693],
+  [-122.64038, 45.553967],
+  [-122.720031, 45.526554],
+  [-122.669906, 45.507309],
+  [-122.723464, 45.446643],
+  [-122.532577, 45.408574],
+  [-122.487258, 45.477466],
+  [-122.520217, 45.535693]
+]], {
+  "fill": "#00F",
+  "fill-opacity": 4
+});
+
+var intersection = turf.intersect(poly1, poly2);
+L.geoJson(intersection,{style:{color:'red',weight:5}}).addTo(map);
+
+
 </script>

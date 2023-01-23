@@ -26,12 +26,12 @@
   </head>
   <body>
     <div id="map"></div>
-    <button>
+    <!-- <button>
       <a
         href="http://localhost:8080/geoserver/wfs?service=wfs&version=2.0.0&request=GetFeature&typeNames=topp:BU_2020_A0_S0&outputFormat=shape-zip&srsName=epsg:4326"
         >Download zip shp</a
       >
-    </button>
+    </button> -->
   </body>
 </html>
 
@@ -40,10 +40,14 @@
 
 <!-- jquery link  -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="lib/L.Geoserver.js"></script>
+<script src="lib/leaflet-hash.js"></script>
+<script src="https://unpkg.com/geojson-vt@3.2.0/geojson-vt.js"></script>
+<script src="lib/leaflet-geojson-vt.js"></script>
 
 <script>
   var map = L.map("map").setView([15.6261, -61.44361], 13);
-
+ var hash = new L.Hash(map);
   var osm = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 19,
     attribution:
@@ -60,18 +64,68 @@
     fillOpacity: 0.8,
   };
 
+  // var wfs_url =
+  //   "http://localhost:8080/geoserver/wfs?service=wfs&version=2.0.0&request=GetFeature&typeNames=topp:BU_2020_A0_S0&outputFormat=application/json&srsName=epsg:4326";
   var wfs_url =
-    "http://localhost:8080/geoserver/wfs?service=wfs&version=2.0.0&request=GetFeature&typeNames=topp:BU_2020_A0_S0&outputFormat=application/json&srsName=epsg:4326";
+    "http://localhost:8080/geoserver/wfs?service=wfs&version=2.22.0&request=GetFeature&typeNames=demo:New_BDS_Mouza&outputFormat=application/json&srsName=epsg:4326";
+  console.log('wfs_url ',wfs_url);
+
+/*   var wfsLayer = L.Geoserver.wfs("http://localhost:8080/geoserver/wfs", {
+  layers: "demo:khulna_polygon",
+}).addTo(map); */
 
   $.getJSON(wfs_url).then((res) => {
-    var layer = L.geoJson(res, {
+   
+    /* var layer = L.geoJson(res, {
+      style: function () {
+				return {
+					color: 'yellow',
+                    fillOpacity: .5,
+					fillColor: '#FED976'
+				}
+			},
       onEachFeature: function (f, l) {
-        l.bindPopup("BU: " + f.properties.BU + " USE:" + f.properties.USE);
+        console.log('l  ',l,' f ',f);
+        var center = l.getBounds().getCenter();
+        setCustomMarker(center['lng'], center['lat'], f.properties.Mouza_Dag);
+        l.bindPopup("Mouza_Dag: " + f.properties.Mouza_Dag + " Area_Acres:" + f.properties.Area_Acres);
       },
 
-      style: geojsonStyle,
+      // style: geojsonStyle,
     }).addTo(map);
 
-    map.fitBounds(layer.getBounds());
+    map.fitBounds(layer.getBounds()); */
+    var options = {
+        maxZoom: 20,
+        tolerance: 3,
+        debug: 0,
+        style: {
+          color: 'yellow',
+          fillOpacity: .5,
+					fillColor: '#FED976'
+        },
+        
+       
+    };
+
+    var tileIndex = L.geoJson.vt(res, options).addTo(map);
+ 
+   
   });
+
+  function setCustomMarker(lat, lng, content) {
+			// console.log('lat in ',lat,'lng in',lng);
+			var myTextLabel = L.marker([lng, lat], {
+				icon: L.divIcon({
+					className: 'text-labels',
+					html: content
+				}),
+				zIndexOffset: 1000
+			}).addTo(map);
+		}
+
+
+ /*  var wmsLayer=L.Geoserver.wfs("http://localhost:8080/geoserver/wfs",{
+    layers:'demo:New_BDS_Mouza'
+  }).addTo(map); */
 </script>
